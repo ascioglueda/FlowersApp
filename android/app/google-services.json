@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482908904509",
+    "project_id": "flowersapp-fbd8b",
+    "storage_bucket": "flowersapp-fbd8b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482908904509:android:9e326be488683ad50d1e54",
+        "android_client_info": {
+          "package_name": "com.example.flowersapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoU4Tw12DfdpkZAQZC1pIb2nfUYGFirlE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
