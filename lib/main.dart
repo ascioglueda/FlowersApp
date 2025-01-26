@@ -1,16 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // firebase_options.dart dosyasını import edin
+import 'navigation_bar.dart'; // BottomNavigationBar için yeni dosyayı import ediyoruz.
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Firebase'i başlatıyoruz
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // firebase_options.dart'tan yapılandırmayı alıyoruz
-  );
-
+void main() {
   runApp(const MyApp());
 }
 
@@ -20,62 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Çiçek Uygulaması',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      debugShowCheckedModeBanner: false,  // Debug banner'ını kaldırmak için ekledik
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: const BottomNavBar(), // Yeni dosyadaki BottomNavigationBar widget'ını çağırıyoruz.
     );
   }
 }
