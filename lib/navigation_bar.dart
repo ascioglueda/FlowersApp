@@ -3,7 +3,7 @@ import 'home_page.dart';
 import 'categories_page.dart';
 import 'favorites_page.dart';
 import 'camera_page.dart';
-import 'game_page.dart'; // Yeni sayfayı import ettik
+import 'Game/game_page.dart'; // Yeni sayfayı import ettik
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});

@@ -1,20 +1,11 @@
 import 'dart:math';
-
-import 'package:flowersapp/home_page.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CardGame extends StatefulWidget {
+  const CardGame({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: GamePage(),
-    );
-  }
+  State<CardGame> createState() => _CardGameState();
 }
 
 class CardModel {
@@ -31,18 +22,12 @@ class CardModel {
   });
 }
 
-class GamePage extends StatefulWidget {
-  const GamePage({super.key});
-
-  @override
-  _GamePageState createState() => _GamePageState();
-}
-
-class _GamePageState extends State<GamePage> {
+class _CardGameState extends State<CardGame> {
   List<CardModel> cards = [];
   List<CardModel> flippedCards = [];
   int level = 1;
   int score = 0;
+  int stars = 1;
 
   @override
   void initState() {
@@ -51,7 +36,6 @@ class _GamePageState extends State<GamePage> {
   }
 
   void _generateCards() {
-    // Kartları seviyeye göre artırma
     List<CardModel> availableCards = [
       CardModel(plantName: 'Lale', imageAsset: 'assets/flowers1/lale.png'),
       CardModel(plantName: 'Menekşe', imageAsset: 'assets/flowers1/menekse.png'),
@@ -63,22 +47,18 @@ class _GamePageState extends State<GamePage> {
       CardModel(plantName: 'Gelincik', imageAsset: 'assets/flowers1/gelincik.png'),
     ];
 
-    // Kartları seviyeye göre seç
-    List<CardModel> selectedCards = [];
-    for (int i = 0; i < level; i++) {
-      selectedCards.addAll(availableCards);
-    }
+    int numberOfPairs = 2 + level;
+    numberOfPairs = min(numberOfPairs, availableCards.length);
 
-    // Kartları çift yapma
+    List<CardModel> selectedCards = availableCards.sublist(0, numberOfPairs);
+
     cards = [];
     for (var card in selectedCards) {
       cards.add(CardModel(plantName: card.plantName, imageAsset: card.imageAsset));
       cards.add(CardModel(plantName: card.plantName, imageAsset: card.imageAsset));
     }
 
-    // Kartları karıştırma
     cards.shuffle(Random());
-
     setState(() {});
   }
 
@@ -102,6 +82,10 @@ class _GamePageState extends State<GamePage> {
         flippedCards[1].isMatched = true;
         flippedCards.clear();
         score += 10;
+
+        if (cards.every((card) => card.isMatched)) {
+          _showLevelCompleteMessage();
+        }
       });
     } else {
       Future.delayed(const Duration(seconds: 1), () {
@@ -114,37 +98,60 @@ class _GamePageState extends State<GamePage> {
     }
   }
 
+  void _showLevelCompleteMessage() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tebrikler!"),
+          content: Text("Seviyeyi tamamladınız. Şu an $stars yıldızınız var. Bir sonraki seviyeye geçebilirsiniz."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _nextLevel();
+              },
+              child: const Text("Devam"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _nextLevel() {
-    setState(() {
-      level++;
-      _generateCards();
-    });
+    if (cards.every((card) => card.isMatched)) {
+      setState(() {
+        level++;
+        stars++;
+        _generateCards();
+      });
+    }
   }
 
   void _resetGame() {
     setState(() {
       level = 1;
+      stars = 0;
       score = 0;
       _generateCards();
     });
+  }
+
+  Widget _buildStars() {
+    List<Widget> starWidgets = [];
+    for (int i = 0; i < stars; i++) {
+      starWidgets.add(const Icon(Icons.star, color: Colors.yellow));
+    }
+    return Row(children: starWidgets);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey.shade100,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back), // Geri ok simgesi
-          onPressed: () {
-            // HomePage'e yönlendirme
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          },
-        ),
-        title: Text("Hafıza Kartı Oyunu - Level $level"),
+        title: Text("Hafıza Kartı Oyunu"),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -152,17 +159,27 @@ class _GamePageState extends State<GamePage> {
           ),
         ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Text("Puan: $score", style: const TextStyle(fontSize: 24)),
+            Text(
+              "Seviye: $level",
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Puan: $score", style: const TextStyle(fontSize: 24)),
+                _buildStars(),
+              ],
+            ),
+            const SizedBox(height: 40),
             Expanded(
               child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: min(4, (cards.length / 2).ceil()),
                   childAspectRatio: 1.0,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
@@ -186,10 +203,19 @@ class _GamePageState extends State<GamePage> {
                 },
               ),
             ),
-            ElevatedButton(
-              onPressed: _nextLevel,
-              child: const Text("Sonraki Seviye"),
-            ),
+            if (cards.every((card) => card.isMatched))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: _nextLevel,
+                  child: const Text("Sonraki Seviye"),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

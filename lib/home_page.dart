@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
                   _buildFlowerCard(
                       'Orkide', 'assets/orkide.jpg', 'Orkide çiçeği'),
                   _buildFlowerCard(
-                      'Gül', 'assets/gul.jpg', 'Güller'),
+                      'Gül', 'assets/karagul.jpeg', 'Kara Gül'),
                   _buildFlowerCard('Papatya', 'assets/papatya.jpg',
                       'Papatya baharı'),
                 ],
