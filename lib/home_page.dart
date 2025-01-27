@@ -19,11 +19,14 @@ class HomePage extends StatelessWidget {
             const Center(
               child: Column(
                 children: [
-                  /*Icon(Icons.local_florist_sharp, size: 80, color: Colors.green),
-                  SizedBox(height: 20),*/
+                  /*Icon(Icons.local_florist_sharp, size: 80, color: Colors.green),*/
+                  SizedBox(height: 50),
                   Text(
                     'Hoş Geldiniz!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     'Çiçeklerle dolu bir dünyaya göz atın.',

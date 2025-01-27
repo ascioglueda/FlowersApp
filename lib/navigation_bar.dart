@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Ana sayfa
-import 'categories_page.dart'; // Kategoriler sayfası
-import 'explore_page.dart'; // Keşfet sayfası
-import 'favorites_page.dart'; // Favoriler sayfası
-import 'camera_page.dart'; // Kamera sayfası
+import 'home_page.dart';
+import 'categories_page.dart';
+import 'favorites_page.dart';
+import 'camera_page.dart';
+import 'game_page.dart'; // Yeni sayfayı import ettik
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -13,17 +13,18 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Başlangıçta Ana Sayfa seçili
 
-  // Sayfaların listesi
+  // Sayfa listesi
   final List<Widget> _pages = [
     const HomePage(),
     const CategoriesPage(),
-    const ExplorePage(),
-    const FavoritesPage(),
     const CameraPage(),
+    const FavoritesPage(),
+    const GamePage(), // Yeni oyun sayfasını listeye ekledik
   ];
 
+  // Sayfa değişim fonksiyonu
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,37 +34,56 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Çiçek Uygulaması'),
-        backgroundColor: Colors.green.shade300,
-      ),
-      body: _pages[_selectedIndex], // Seçilen sayfayı gösteriyor
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.green.shade800,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Ana Sayfa',
+      body: _pages[_selectedIndex], // Seçilen sayfayı göster
+      bottomNavigationBar: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: (int index) {
+              _onItemTapped(index); // Tıklama ile sayfa değiştir
+            },
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colors.green.shade800,
+            unselectedItemColor: Colors.grey,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Ana Sayfa',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.category),
+                label: 'Kategoriler',
+              ),
+              BottomNavigationBarItem(
+                icon: SizedBox(), // Orta kamera butonu için boşluk
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.favorite),
+                label: 'Favoriler',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.games), // Oyun ikonu
+                label: 'Oyun', // Yeni menü ismi
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Kategoriler',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Keşfet',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoriler',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.camera_alt),
-            label: 'Kamera',
+          // Orta kamera butonu
+          Positioned(
+            bottom: 10, // Yükseklik
+            left: MediaQuery.of(context).size.width / 2 - 35, // Ortalamak
+            child: FloatingActionButton(
+              onPressed: () {
+                // Kamera sayfasına yönlendirme
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CameraPage()),
+                );
+              },
+              backgroundColor: Colors.green.shade800,
+              child: const Icon(Icons.camera_alt, color: Colors.white),
+            ),
           ),
         ],
       ),
