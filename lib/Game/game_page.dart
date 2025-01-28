@@ -29,8 +29,8 @@ class GamePage extends StatelessWidget {
           const SizedBox(height: 16), // İki oyun arasında boşluk
           _buildGameOption(
             context,
-            "Kelime Bulmaca",
-            "assets/gul.jpg", // Örnek resim yolu
+            "Çiçek Bilgi Oyunu",
+            "assets/game/question1.png", // Örnek resim yolu
             const WordGame(), // Şimdi WordGame widget'ı yönlendiriliyor
           ),
           // Diğer oyun seçenekleri buraya eklenebilir

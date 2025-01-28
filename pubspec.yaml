@@ -42,6 +42,7 @@ dependencies:
   camera: ^0.10.5+9
   url_launcher: ^6.3.0
   flutter_confetti: ^0.3.4
+  http: ^1.2.0
 
 
 dev_dependencies:
@@ -81,6 +82,8 @@ flutter:
      - assets/flowers1/sumbul.png
      - assets/flowers1/zambak.png
      - assets/game/card_game.png
+     - assets/game/question.png
+     - assets/game/question1.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

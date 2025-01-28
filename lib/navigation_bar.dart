@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'Home Page/home_page.dart';
 import 'categories_page.dart';
 import 'favorites_page.dart';
 import 'camera_page.dart';
