@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -10,55 +10,35 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  List<Map<String, dynamic>> categories = []; // Çiçekler kategoriler olarak gruplandı
-  List<Map<String, dynamic>> filteredCategories = []; // Filtrelenmiş kategoriler
-  TextEditingController searchController = TextEditingController();
+  List<String> categories = [];
+  List<String> filteredCategories = []; // Arama sonuçları için yeni liste
+  TextEditingController searchController = TextEditingController(); // Arama kontrolü için controller
 
   @override
   void initState() {
     super.initState();
-    fetchFlowerNames();
-    searchController.addListener(() {
-      filterCategories();
-    });
+    fetchCategories();
   }
 
-  // Çiçek isimlerini ve kategorileri API'den almak için fonksiyon
-  Future<void> fetchFlowerNames() async {
-    try {
-      final response = await http.get(Uri.parse('http://127.0.0.1:5000/api/flowers'));
+  Future<void> fetchCategories() async {
+    final response = await http.get(Uri.parse('http://192.168.0.18:5000/api/flowers'));
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
 
-        // Assuming the API just returns a list of flower names
-        setState(() {
-          categories = [
-            {'category': 'Flowers', 'flowers': data}, // A single category for simplicity
-          ];
-          filteredCategories = List.from(categories); // Show all initially
-        });
-      } else {
-        throw Exception('Veriler alınamadı: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Hata: $e');
+      setState(() {
+        categories = List<String>.from(data).toSet().toList();
+        filteredCategories = categories; // Başlangıçta tüm kategoriler gösterilsin
+      });
+    } else {
+      throw Exception('Veriler alınamadı!');
     }
   }
 
-
-  // Arama kutusu ile kategorileri filtreleme
-  void filterCategories() {
+  void filterCategories(String query) {
     setState(() {
       filteredCategories = categories
-          .where((category) =>
-      category['category']
-          .toLowerCase()
-          .contains(searchController.text.toLowerCase()) ||
-          (category['flowers'] as List)
-              .any((flower) => flower['name']
-              .toLowerCase()
-              .contains(searchController.text.toLowerCase())))
+          .where((category) => category.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -66,46 +46,69 @@ class _CategoriesPageState extends State<CategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kategoriler'),
-        backgroundColor: Colors.green.shade700,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            // Arama kutusu
-            TextField(
+      appBar: AppBar(title: const Text('Kategoriler')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
               controller: searchController,
-              decoration: const InputDecoration(
-                labelText: 'Kategori Ara',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: 'Çiçekleri Keşfedin...', // Kullanıcıya ne araması gerektiği konusunda bilgi verir
+                hintStyle: TextStyle(color: Colors.grey[600]), // Hint text rengi
+                filled: true, // Arama kutusunun dolu olmasını sağlar
+                fillColor: Colors.grey[100], // Arama kutusunun arka plan rengini belirler
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30), // Yuvarlak köşeler
+                  borderSide: BorderSide.none, // Kenarlık yok
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide(color: Colors.green.shade700, width: 2), // Fokusa girildiğinde mavi kenarlık
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.green.shade700, // Arama simgesi rengi
+                ),
+                suffixIcon: searchController.text.isNotEmpty
+                    ? IconButton(
+                  icon: Icon(Icons.clear),
+                  color: Colors.green.shade700,
+                  onPressed: () {
+                    searchController.clear();
+                    filterCategories(''); // Arama kutusu temizlendiğinde listeyi geri getir
+                  },
+                )
+                    : null,
               ),
+              onChanged: (query) => filterCategories(query),
             ),
-            const SizedBox(height: 10),
-
-            // Kategoriler listesi
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredCategories.length,
-                itemBuilder: (context, index) {
-                  var category = filteredCategories[index];
-
-                  return ExpansionTile(
-                    title: Text(category['category']),
-                    children: (category['flowers'] as List).map<Widget>((flower) {
-                      return ListTile(
-                        title: Text(flower['name']),
-                      );
-                    }).toList(),
-                  );
-                },
+          ),
+          filteredCategories.isEmpty
+              ? const Expanded(child: Center(child: CircularProgressIndicator()))
+              : Expanded(
+            child: ListView.separated(
+              itemCount: filteredCategories.length,
+              separatorBuilder: (context, index) => Divider(
+                color: Colors.grey,
+                thickness: 0.5,
+                indent: 16,
+                endIndent: 16,
               ),
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    filteredCategories[index],
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  onTap: () {
+                    print('${filteredCategories[index]} seçildi');
+                  },
+                );
+              },
             ),
-
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
