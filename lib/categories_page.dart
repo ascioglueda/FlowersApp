@@ -12,14 +12,17 @@ class CategoriesPage extends StatefulWidget {
 class _CategoriesPageState extends State<CategoriesPage> {
   List<String> categories = [];
   List<String> filteredCategories = []; // Arama sonuçları için yeni liste
+  List<String> images = []; // Çiçek resimlerinin listesi
   TextEditingController searchController = TextEditingController(); // Arama kontrolü için controller
 
   @override
   void initState() {
     super.initState();
     fetchCategories();
+    fetchImages(); // Resimleri de çekeriz
   }
 
+  // Kategorileri çeken fonksiyon
   Future<void> fetchCategories() async {
     final response = await http.get(Uri.parse('http://192.168.0.18:5000/api/flowers'));
 
@@ -35,6 +38,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
+  // Çiçek resimlerini çeken fonksiyon
+// Çiçek resimlerini çeken fonksiyon
+  Future<void> fetchImages() async {
+    final response = await http.get(Uri.parse('http://192.168.0.18:5000/api/flowers/images'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+
+      setState(() {
+        // Resimlerin listesi
+        images = List<String>.from(data.map((image) => 'http://192.168.0.18:5000/images/$image'));
+      });
+    } else {
+      throw Exception('Resimler alınamadı!');
+    }
+  }
+
+
+  // Arama filtresi
   void filterCategories(String query) {
     setState(() {
       filteredCategories = categories
@@ -104,6 +126,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   onTap: () {
                     print('${filteredCategories[index]} seçildi');
                   },
+                );
+              },
+            ),
+          ),
+          // Resimleri listelemek için yeni bir bölüm
+          images.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // 3 sütunlu grid düzeni
+                crossAxisSpacing: 10.0, // Sütunlar arası boşluk
+                mainAxisSpacing: 10.0, // Satırlar arası boşluk
+              ),
+              itemCount: images.length,
+              itemBuilder: (context, index) {
+                return Image.network(
+                  images[index],
+                  fit: BoxFit.cover,
                 );
               },
             ),

@@ -43,6 +43,7 @@ dependencies:
   url_launcher: ^6.3.0
   flutter_confetti: ^0.3.4
   http: ^1.2.0
+  cloud_firestore: ^4.15.8
 
 
 dev_dependencies:

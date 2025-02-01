@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'navigation_bar.dart'; // BottomNavigationBar için yeni dosyayı import ediyoruz.
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Firebase başlatmadan önce bunu çağır
+  await Firebase.initializeApp(); // Firebase'i başlat
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
