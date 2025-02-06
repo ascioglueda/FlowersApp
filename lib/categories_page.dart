@@ -1,6 +1,6 @@
+import 'package:flowersapp/DetailsPage.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CategoriesPage extends StatefulWidget {
   const CategoriesPage({super.key});
@@ -10,58 +10,52 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  List<String> categories = [];
-  List<String> filteredCategories = []; // Arama sonuçları için yeni liste
-  List<String> images = []; // Çiçek resimlerinin listesi
-  TextEditingController searchController = TextEditingController(); // Arama kontrolü için controller
+  List<Map<String, String>> flowers = [];
+  List<Map<String, String>> filteredFlowers = [];
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchCategories();
-    fetchImages(); // Resimleri de çekeriz
+    fetchFlowers();
   }
 
-  // Kategorileri çeken fonksiyon
-  Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://192.168.0.18:5000/api/flowers'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
+  Future<void> fetchFlowers() async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Flowers').get();
 
       setState(() {
-        categories = List<String>.from(data).toSet().toList();
-        filteredCategories = categories; // Başlangıçta tüm kategoriler gösterilsin
+        flowers = querySnapshot.docs.map((doc) {
+          return {
+            "name": doc["name"] as String,
+            "image": doc["image_path"] as String,
+          };
+        }).toList();
+
+        Map<String, Map<String, String>> uniqueFlowersMap = {};
+        for (var flower in flowers) {
+          uniqueFlowersMap[flower["name"]!] = flower;
+        }
+
+        flowers = uniqueFlowersMap.values.toList();
+        filteredFlowers = List.from(flowers);
       });
-    } else {
-      throw Exception('Veriler alınamadı!');
+    } catch (e) {
+      print("Veri çekme hatası: $e");
     }
   }
 
-  // Çiçek resimlerini çeken fonksiyon
-// Çiçek resimlerini çeken fonksiyon
-  Future<void> fetchImages() async {
-    final response = await http.get(Uri.parse('http://192.168.0.18:5000/api/flowers/images'));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-
-      setState(() {
-        // Resimlerin listesi
-        images = List<String>.from(data.map((image) => 'http://192.168.0.18:5000/images/$image'));
-      });
-    } else {
-      throw Exception('Resimler alınamadı!');
-    }
-  }
-
-
-  // Arama filtresi
-  void filterCategories(String query) {
+  void filterFlowers(String query) {
     setState(() {
-      filteredCategories = categories
-          .where((category) => category.toLowerCase().contains(query.toLowerCase()))
+      filteredFlowers = flowers
+          .where((flower) => flower["name"]!.toLowerCase().contains(query.toLowerCase()))
           .toList();
+
+      Map<String, Map<String, String>> uniqueFlowersMap = {};
+      for (var flower in filteredFlowers) {
+        uniqueFlowersMap[flower["name"]!] = flower;
+      }
+      filteredFlowers = uniqueFlowersMap.values.toList();
     });
   }
 
@@ -76,21 +70,21 @@ class _CategoriesPageState extends State<CategoriesPage> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Çiçekleri Keşfedin...', // Kullanıcıya ne araması gerektiği konusunda bilgi verir
-                hintStyle: TextStyle(color: Colors.grey[600]), // Hint text rengi
-                filled: true, // Arama kutusunun dolu olmasını sağlar
-                fillColor: Colors.grey[100], // Arama kutusunun arka plan rengini belirler
+                hintText: 'Çiçekleri Keşfedin...',
+                hintStyle: TextStyle(color: Colors.grey[600]),
+                filled: true,
+                fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30), // Yuvarlak köşeler
-                  borderSide: BorderSide.none, // Kenarlık yok
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(color: Colors.green.shade700, width: 2), // Fokusa girildiğinde mavi kenarlık
+                  borderSide: BorderSide(color: Colors.green.shade700, width: 2),
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.green.shade700, // Arama simgesi rengi
+                  color: Colors.green.shade700,
                 ),
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
@@ -98,19 +92,19 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   color: Colors.green.shade700,
                   onPressed: () {
                     searchController.clear();
-                    filterCategories(''); // Arama kutusu temizlendiğinde listeyi geri getir
+                    filterFlowers('');
                   },
                 )
                     : null,
               ),
-              onChanged: (query) => filterCategories(query),
+              onChanged: (query) => filterFlowers(query),
             ),
           ),
-          filteredCategories.isEmpty
+          filteredFlowers.isEmpty
               ? const Expanded(child: Center(child: CircularProgressIndicator()))
               : Expanded(
             child: ListView.separated(
-              itemCount: filteredCategories.length,
+              itemCount: filteredFlowers.length,
               separatorBuilder: (context, index) => Divider(
                 color: Colors.grey,
                 thickness: 0.5,
@@ -120,31 +114,21 @@ class _CategoriesPageState extends State<CategoriesPage> {
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(
-                    filteredCategories[index],
+                    filteredFlowers[index]["name"]!,
                     style: const TextStyle(fontSize: 16),
                   ),
                   onTap: () {
-                    print('${filteredCategories[index]} seçildi');
+                    // Tıklanan çiçeğin detay sayfasına yönlendirme
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsPage(
+                          flowerName: filteredFlowers[index]["name"]!,
+                          flowerImage: filteredFlowers[index]["image"]!,
+                        ),
+                      ),
+                    );
                   },
-                );
-              },
-            ),
-          ),
-          // Resimleri listelemek için yeni bir bölüm
-          images.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // 3 sütunlu grid düzeni
-                crossAxisSpacing: 10.0, // Sütunlar arası boşluk
-                mainAxisSpacing: 10.0, // Satırlar arası boşluk
-              ),
-              itemCount: images.length,
-              itemBuilder: (context, index) {
-                return Image.network(
-                  images[index],
-                  fit: BoxFit.cover,
                 );
               },
             ),

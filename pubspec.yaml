@@ -38,12 +38,13 @@ dependencies:
   firebase_core: ^2.27.0
   firebase_auth: ^4.17.8
   firebase_storage: ^11.6.9
-  path_provider: ^2.1.4
   camera: ^0.10.5+9
   url_launcher: ^6.3.0
   flutter_confetti: ^0.3.4
   http: ^1.2.0
   cloud_firestore: ^4.15.8
+  firebase_database: ^10.4.9
+
 
 
 dev_dependencies:
