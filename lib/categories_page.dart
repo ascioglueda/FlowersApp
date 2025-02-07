@@ -22,22 +22,27 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
   Future<void> fetchFlowers() async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('Flowers').get();
+      QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance.collection('Flowers').get();
 
       setState(() {
-        flowers = querySnapshot.docs.map((doc) {
-          return {
-            "name": doc["name"] as String,
-            "image": doc["image_path"] as String,
-          };
-        }).toList();
+        flowers = querySnapshot.docs
+            .map((doc) => {
+          "name": doc["name"] as String,
+          "image": doc["image_path"] as String,
+        })
+            .toList();
 
+        // Aynı isme sahip olanları temizleme
         Map<String, Map<String, String>> uniqueFlowersMap = {};
         for (var flower in flowers) {
           uniqueFlowersMap[flower["name"]!] = flower;
         }
-
         flowers = uniqueFlowersMap.values.toList();
+
+        // Çiçekleri alfabetik olarak sıralama
+        flowers.sort((a, b) => a["name"]!.compareTo(b["name"]!));
+
         filteredFlowers = List.from(flowers);
       });
     } catch (e) {
@@ -48,48 +53,39 @@ class _CategoriesPageState extends State<CategoriesPage> {
   void filterFlowers(String query) {
     setState(() {
       filteredFlowers = flowers
-          .where((flower) => flower["name"]!.toLowerCase().contains(query.toLowerCase()))
+          .where((flower) =>
+          flower["name"]!.toLowerCase().contains(query.toLowerCase()))
           .toList();
-
-      Map<String, Map<String, String>> uniqueFlowersMap = {};
-      for (var flower in filteredFlowers) {
-        uniqueFlowersMap[flower["name"]!] = flower;
-      }
-      filteredFlowers = uniqueFlowersMap.values.toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kategoriler')),
+      appBar: AppBar(
+        title: const Text('Kategoriler'),
+        backgroundColor: Colors.green[100],
+        elevation: 0,
+      ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Çiçekleri Keşfedin...',
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide(color: Colors.green.shade700, width: 2),
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.green.shade700,
-                ),
+                prefixIcon: Icon(Icons.search, color: Colors.green.shade700),
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
-                  icon: Icon(Icons.clear),
-                  color: Colors.green.shade700,
+                  icon: Icon(Icons.clear, color: Colors.green.shade700),
                   onPressed: () {
                     searchController.clear();
                     filterFlowers('');
@@ -100,35 +96,41 @@ class _CategoriesPageState extends State<CategoriesPage> {
               onChanged: (query) => filterFlowers(query),
             ),
           ),
-          filteredFlowers.isEmpty
-              ? const Expanded(child: Center(child: CircularProgressIndicator()))
-              : Expanded(
-            child: ListView.separated(
+          Expanded(
+            child: filteredFlowers.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
               itemCount: filteredFlowers.length,
-              separatorBuilder: (context, index) => Divider(
-                color: Colors.grey,
-                thickness: 0.5,
-                indent: 16,
-                endIndent: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    filteredFlowers[index]["name"]!,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  onTap: () {
-                    // Tıklanan çiçeğin detay sayfasına yönlendirme
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailsPage(
-                          flowerName: filteredFlowers[index]["name"]!,
-                          flowerImage: filteredFlowers[index]["image"]!,
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage:
+                      NetworkImage(filteredFlowers[index]["image"]!),
+                    ),
+                    title: Text(
+                      filteredFlowers[index]["name"]!,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.grey, size: 18),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailsPage(
+                            flowerName: filteredFlowers[index]["name"]!,
+                            flowerImage: filteredFlowers[index]["image"]!,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
             ),

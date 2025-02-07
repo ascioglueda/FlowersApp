@@ -13,7 +13,7 @@ class GamePage extends StatelessWidget {
           "Oyun Seçimi",
           style: TextStyle(fontSize: 25),
         ),
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: Colors.green[100],
         foregroundColor: Colors.black, // Yazı rengini siyah yapıyoruz
         elevation: 1, // Daha ince bir gölge
       ),
