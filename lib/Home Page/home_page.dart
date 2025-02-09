@@ -1,3 +1,4 @@
+import 'package:flowersapp/CicekBakimi.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -81,12 +82,18 @@ class HomePage extends StatelessWidget {
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
               children: [
-                _buildExploreCard('Çiçek Bakımı', Icons.spa, Colors.pink),
+                // Çiçek Bakımı Kartına Tıklayınca yönlendirme
                 _buildExploreCard(
-                    'Çiçek Anlamları', Icons.favorite, Colors.red),
+                  'Çiçek Bakımı',
+                  Icons.spa,
+                  Colors.pink,
+                  context,
+                ),
                 _buildExploreCard(
-                    'Mevsim Çiçekleri', Icons.nature, Colors.green),
-                _buildExploreCard('Dekorasyon', Icons.home, Colors.orange),
+                    'Çiçek Anlamları', Icons.favorite, Colors.red, context),
+                _buildExploreCard(
+                    'Mevsim Çiçekleri', Icons.nature, Colors.green, context),
+                _buildExploreCard('Dekorasyon', Icons.home, Colors.orange, context),
               ],
             ),
           ],
@@ -148,24 +155,38 @@ class HomePage extends StatelessWidget {
   }
 
   // Keşfet Kartı
-  Widget _buildExploreCard(String title, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: color.withOpacity(0.1),
-        border: Border.all(color: color.withOpacity(0.4)),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: color),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-        ],
+  // Keşfet Kartı
+  Widget _buildExploreCard(
+      String title, IconData icon, Color color, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (title == 'Çiçek Bakımı') {
+          // Çiçek Bakımı kartına tıklanınca CicekBakimi sayfasına yönlendir
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CicekBakimi()),
+          );
+        }
+        // Diğer kartlar için benzer yönlendirme işlemleri ekleyebilirsiniz
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: color.withOpacity(0.1),
+          border: Border.all(color: color.withOpacity(0.4)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: color),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

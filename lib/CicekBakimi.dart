@@ -2,14 +2,14 @@ import 'package:flowersapp/DetailsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CategoriesPage extends StatefulWidget {
-  const CategoriesPage({super.key});
+class CicekBakimi extends StatefulWidget {
+  const CicekBakimi({super.key});
 
   @override
-  _CategoriesPageState createState() => _CategoriesPageState();
+  _CicekBakimiState createState() => _CicekBakimiState();
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
+class _CicekBakimiState extends State<CicekBakimi> {
   List<Map<String, String>> flowers = [];
   List<Map<String, String>> filteredFlowers = [];
   TextEditingController searchController = TextEditingController();
@@ -67,7 +67,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kategoriler'),
+        title: const Text('Çiçek Bakımı'),
         backgroundColor: Colors.green[100],
         elevation: 0,
       ),
@@ -78,7 +78,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Çiçekleri Keşfedin...',
+                hintText: 'Çiçek bakımı ipuçlarını keşfedin...',
                 hintStyle: TextStyle(color: Colors.black),
                 filled: true,
                 fillColor: Colors.grey.shade200,

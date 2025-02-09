@@ -2,8 +2,20 @@ import 'package:flutter/material.dart';
 
 class DetailsPage extends StatelessWidget {
   final String flowerName;
+  final String description;
+  final String habitat;
+  final String light;
+  final String soil;
+  final String watering;
 
-  const DetailsPage({super.key, required this.flowerName});
+  const DetailsPage({super.key,
+    required this.flowerName,
+    required this.description,
+    required this.habitat,
+    required this.light,
+    required this.soil,
+    required this.watering,
+  });
 
   // Çiçek isimleri ve resim yolları
   static const Map<String, String> flowerImages = {
@@ -93,7 +105,7 @@ class DetailsPage extends StatelessWidget {
     "Kardelen Anemon Çiçeği": "assets/CategoriesPage/Kardelen_Anemon/image_05285.jpg",
     "Kasımpatı": "assets/CategoriesPage/Kasimpati/kasimpati1.jpg",
     "Kiraz Çiçeği": "assets/CategoriesPage/Kiraz/kiraz.jpg",
-    "Kırmızı Bergamot": "assets/CategoriesPage/Kirmizi_Bergamot//kirmizi_bergamot.jpg",
+    "Kırmızı Bergamot": "assets/CategoriesPage/Kirmizi_Bergamot/kirmizi_bergamot.jpg",
     "Kırmızı Yıldız Çiçeği": "assets/CategoriesPage/Kirmizi_Yildiz/image_02757.jpg",
     "Kırmızı Zencefil": "assets/CategoriesPage/Kirmizi_Zencefil/image_08050.jpg",
     "Kirpi Koni Çiçeği": "assets/CategoriesPage/Kirpi_Koni/image_03866.jpg",
@@ -152,17 +164,156 @@ class DetailsPage extends StatelessWidget {
     "Lisyantus Çiçeği": "assets/CategoriesPage/Lisyantus/lisyantua.jpg",
    // "Petunya": "assets/CategoriesPage/Petunya/image_01325.jpg",
 
-
   };
-
+// Işık, toprak ve su değerlerini yüzdeye çevirmek için yardımcı fonksiyon
+  double _convertValue(String value) {
+    switch (value.toLowerCase()) {
+      case "az":
+        return 0.3;
+      case "orta":
+        return 0.6;
+      case "çok":
+        return 1.0;
+      default:
+        return 0.5; // Varsayılan orta seviye
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(flowerName)),
-      body: Center(
-        child: Image.asset(flowerImages[flowerName] ?? 'assets/default_image.jpg'),  // Resmi göster
+      appBar: AppBar(
+        title: Text(flowerName),
+        backgroundColor: Colors.green[100],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Çiçek Görseli
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                flowerImages[flowerName] ?? "assets/placeholder.jpg",
+                width: double.infinity,
+                height: 250,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Çiçek İsmi
+            Text(
+              flowerName,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            // Açıklama Alanı
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildInfoRow(Icons.description, "Açıklama", description),
+                  _buildInfoRow(Icons.nature, "Habitat", habitat),
+                  _buildInfoRow(Icons.wb_sunny, "Işık İhtiyacı", light),
+                  _buildInfoRow(Icons.grass, "Toprak", soil),
+                  _buildInfoRow(Icons.water_drop, "Sulama", watering),
+
+                  const SizedBox(height: 20),
+
+                  // Grafiksel Gösterim Alanı
+                  _buildGraphicalIndicators(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // Bilgi satırlarını oluşturan metod
+  Widget _buildInfoRow(IconData icon, String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.green.shade700),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "$title: ",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  TextSpan(
+                    text: value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Grafiksel gösterim widget'ı
+  Widget _buildGraphicalIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildCircularIndicator("Işık", _convertValue(light ?? "orta"), Colors.yellow),
+        _buildCircularIndicator("Toprak", _convertValue(soil ?? "orta"), Colors.purple),
+        _buildCircularIndicator("Su", _convertValue(watering ?? "orta"), Colors.blue),
+      ],
+    );
+  }
+
+// Yuvarlak gösterge çizen metod
+  Widget _buildCircularIndicator(String label, double value, Color color) {
+    return Column(
+      children: [
+        SizedBox(
+          width: 60,
+          height: 60,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CircularProgressIndicator(
+                value: value,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                strokeWidth: 8,
+              ),
+              Center(
+                child: Text(
+                  "${(value * 100).toInt()}%",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
 }
+
+
