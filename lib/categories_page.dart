@@ -23,7 +23,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Future<void> fetchFlowers() async {
     try {
       QuerySnapshot querySnapshot =
-      await FirebaseFirestore.instance.collection('Flowers').get();
+      await FirebaseFirestore.instance.collection('flowers_images').get();
 
       setState(() {
         flowers = querySnapshot.docs
@@ -75,17 +75,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
               controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Çiçekleri Keşfedin...',
-                hintStyle: TextStyle(color: Colors.grey[600]),
+                hintStyle: TextStyle(color: Colors.black),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Colors.grey.shade200,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
-                prefixIcon: Icon(Icons.search, color: Colors.green.shade700),
+                prefixIcon: Icon(Icons.search, color: Colors.black),
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
-                  icon: Icon(Icons.clear, color: Colors.green.shade700),
+                  icon: Icon(Icons.clear, color: Colors.black),
                   onPressed: () {
                     searchController.clear();
                     filterFlowers('');
@@ -105,12 +105,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
               itemBuilder: (context, index) {
                 return Card(
                   elevation: 2,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                      NetworkImage(filteredFlowers[index]["image"]!),
+                    leading: Icon(
+                      Icons.local_florist, // Çiçek ikonu
+                      color: Colors.green.shade200,
+                      size: 40, // Büyüklüğünü ayarlayabilirsin
                     ),
                     title: Text(
                       filteredFlowers[index]["name"]!,
@@ -118,14 +120,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.grey, size: 18),
+                        color: Colors.black, size: 18),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailsPage(
                             flowerName: filteredFlowers[index]["name"]!,
-                            flowerImage: filteredFlowers[index]["image"]!,
+                            //flowerImage: filteredFlowers[index]["image"]!,
                           ),
                         ),
                       );
