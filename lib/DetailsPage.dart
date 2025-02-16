@@ -83,7 +83,7 @@ class DetailsPage extends StatelessWidget {
     "Hanımeli": "assets/CategoriesPage/Hanimeli/hanimeli.jpg",
     "Haseki Küpesi Çiçeği": "assets/CategoriesPage/Haseki_Kupesi/image_02612.jpg",
     "Hava Çiçeği": "assets/CategoriesPage/Hava/image_08117.jpg",
-    "Havaifişek Çiçeği": "assets/CategoriesPage/Havafisek/image_05821.jpg",
+    "Havaifişek Çiçeği": "assets/CategoriesPage/Havaifisek/image_05821.jpg",
     "Hercai Menekşe": "assets/CategoriesPage/Hercai_Menekse/image_04186.jpg",
     "Hint Lotusu": "assets/CategoriesPage/Hint_Lotusu/image_01829.jpg",
     "Hint Mabet Ağacı": "assets/CategoriesPage/Hint_Mabet_Agaci/image_00795.jpg",
